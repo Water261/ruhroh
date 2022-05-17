@@ -6,7 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Rust Toolchain
         uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+        
+      - name: Lint the Project
+        run: cargo clippy
+
       - name: Build the Project
         run: cargo build --release
