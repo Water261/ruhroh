@@ -2,6 +2,7 @@ use clap::Parser;
 use crate::cli::args;
 
 mod cli;
+mod config;
 
 fn main() {
 	let args = args::Args::parse();
