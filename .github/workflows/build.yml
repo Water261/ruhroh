@@ -1,0 +1,12 @@
+name: Build Project
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build the Project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+      - name: Build the Project
+        run: cargo build --release
