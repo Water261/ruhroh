@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 use clap::Parser;
-use log::{info, warn, error};
-use crate::config::configuration::{Config, Device, SpecialDeviceTypes};
+use log::{info};
 use crate::config::config_file::{load_configuration, get_default_config};
 
 mod config;

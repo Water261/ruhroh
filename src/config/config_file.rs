@@ -1,8 +1,6 @@
 use std::{path::{PathBuf}, fs::File, io::BufReader, error::Error};
 use crate::config::configuration::Config;
 
-use super::configuration::{Device, SpecialDeviceTypes};
-
 pub fn load_configuration(path: PathBuf) -> Result<Config, Box<dyn Error>> {
 	let file = File::open(path)?;
 	let reader = BufReader::new(file);

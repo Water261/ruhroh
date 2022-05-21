@@ -1,4 +1,5 @@
-use serde::{Deserialize};
+use std::fmt;
+use serde::Deserialize;
 
 /// Since sometimes people may not include their own configuration file we
 /// need to make a default configuration. Since we don't know the exact
@@ -8,21 +9,18 @@ pub enum SpecialDeviceTypes {
 	Keyboard,
 }
 
-impl SpecialDeviceTypes {
-	pub fn as_str(&self) -> &'static str {
-		match self {
-			SpecialDeviceTypes::Mouse => "Mouse",
-			SpecialDeviceTypes::Keyboard => "Keyboard",
+impl fmt::Display for SpecialDeviceTypes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+			SpecialDeviceTypes::Mouse => write!(f, "Mouse"),
+            SpecialDeviceTypes::Keyboard => write!(f, "Keyboard"),
 		}
-	}
-
-	pub fn to_string(&self) -> String {
-		self.as_str().to_string()
-	}
+    }
 }
 
 #[derive(Deserialize)]
 pub struct Config {
+	pub ignored_devices: Vec<String>,
 	pub devices: Vec<Device>,
 }
 
