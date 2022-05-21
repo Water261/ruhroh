@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use clap::Parser;
+use config::configuration::Config;
 use crate::config::config_file;
 
 mod config;
@@ -13,10 +14,13 @@ pub struct CliArgs {
 }
 
 const DEFAULT_CONFIG_PATH: &str = "/etc/ruhroh.conf";
+const DEFAULT_CONFIG: Config = Config {
+
+};
 
 fn main() {
 	let args = CliArgs::parse();
 	let config_path = args.config_path.unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
 
-	let config = config_file::load_configuration(config_path).unwrap();
+	let config = config_file::load_configuration(config_path).unwrap_or_else(|_| DEFAULT_CONFIG);
 }
