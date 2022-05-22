@@ -1,2 +1,2 @@
-pub mod config_file;
-pub mod configuration;
+pub mod device_types;
+pub mod file;

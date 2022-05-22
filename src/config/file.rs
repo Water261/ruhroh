@@ -1,27 +1,45 @@
-use std::fmt;
+use std::{path::PathBuf, fs::File, io::{BufReader, Error}};
 use serde::Deserialize;
-
-/// Since sometimes people may not include their own configuration file we
-/// need to make a default configuration. Since we don't know the exact
-/// device names they may use, we use these catch all types
-pub enum SpecialDeviceTypes {
-	Mouse,
-	Keyboard,
-}
-
-impl fmt::Display for SpecialDeviceTypes {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-			SpecialDeviceTypes::Mouse => write!(f, "Mouse"),
-            SpecialDeviceTypes::Keyboard => write!(f, "Keyboard"),
-		}
-    }
-}
+use crate::config::device_types::DeviceTypes;
 
 #[derive(Deserialize)]
 pub struct Config {
-	pub ignored_devices: Vec<String>,
+	pub ignored_devices: Option<Vec<String>>,
 	pub devices: Vec<Device>,
+}
+
+impl Config {
+	pub fn new(path: PathBuf) -> Result<Config, Error> {
+		let file = File::open(path);
+
+		if let Ok(config_file) = file {
+			let reader = BufReader::new(config_file);
+			let config = serde_json::from_reader(reader)?;
+	
+			Ok(config)
+		} else {
+			Ok(Config::default())
+		}
+	}
+
+	pub fn default() -> Config {
+		Config {
+			ignored_devices: Some(Vec::new()),
+			devices: vec![
+				Device {
+					name: Some(DeviceTypes::Mouse.to_string()),
+					is_generic: Some(true),
+					smartshift: Some(30),
+					hires_scroll: Some(HiResScroll {
+						enabled: Some(false),
+						invert: Some(false),
+						target: Some(false),
+					}),
+					dpi: Some(1000),
+				}
+			]
+		}
+	}
 }
 
 #[derive(Deserialize)]
@@ -30,7 +48,11 @@ pub struct Device {
 	/// To get the name of the device, launch logid with the device connected
 	/// and it should print out a message with the device name. 
 	/// `(e.g. name: "MX Master";)`
-	pub name: String,
+	pub name: Option<String>,
+	/// WARNING! Do not set this in your configuration file
+	/// This just indicates to ruhroh that it is a generic device and
+	/// the settings should apply to everything
+	pub is_generic: Option<bool>,
 	/// This is an 32bit Integer field that defines the SmartShift settings for
 	/// a mouse that supports it.
 	pub smartshift: Option<u8>,
@@ -50,13 +72,13 @@ pub struct Device {
 pub struct HiResScroll {
 	/// This is an optional boolean field that defines whether the mouse wheel 
 	/// should be high resolution or not.
-	pub enabled: bool,
+	pub enabled: Option<bool>,
 	/// This is an optional boolean field that defines whether to invert the 
 	/// mouse wheel.
-	pub invert: bool,
+	pub invert: Option<bool>,
 	/// This is an optional boolean field that defines whether mousewheel 
 	/// events should send as an HID++ notification or work normally 
 	/// (true for HID++ notification, false for normal usage). This option must
 	/// be set to true to remap the scroll wheel action.
-	pub target: bool,
+	pub target: Option<bool>,
 }
