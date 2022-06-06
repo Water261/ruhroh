@@ -4,12 +4,22 @@ use crate::config::device_types::DeviceTypes;
 
 #[derive(Deserialize)]
 pub struct Config {
+	/// Devices can be ignored from being detected and used in logid. 
+	/// To ignore a device, create a field called ignore as an array 
+	/// of the PIDs of the devices you want to ignore. 
 	pub ignored_devices: Option<Vec<String>>,
-	pub devices: Vec<Device>,
+
+	/// Devices are defined in an array field called devices. 
+	/// This array consists of objects that define a device.
+	pub devices: Option<Vec<Device>>,
+
+	/// The config version to use, if not specified then it
+	/// is assumed that it is 1.
+	pub config_version: Option<u32>,
 }
 
 impl Config {
-	pub fn new(path: PathBuf) -> Result<Config, Error> {
+	pub fn from_path(path: PathBuf) -> Result<Config, Error> {
 		let file = File::open(path);
 
 		if let Ok(config_file) = file {
@@ -25,19 +35,17 @@ impl Config {
 	pub fn default() -> Config {
 		Config {
 			ignored_devices: Some(Vec::new()),
-			devices: vec![
+			devices: Some(vec![
 				Device {
 					name: Some(DeviceTypes::Mouse.to_string()),
 					is_generic: Some(true),
 					smartshift: Some(30),
-					hires_scroll: Some(HiResScroll {
-						enabled: Some(false),
-						invert: Some(false),
-						target: Some(false),
-					}),
+					hires_scroll: None,
 					dpi: Some(1000),
+					buttons: None,
 				}
-			]
+			]),
+			config_version: Some(1),
 		}
 	}
 }
@@ -47,13 +55,12 @@ pub struct Device {
 	/// This is a required string field that defines the name of the device. 
 	/// To get the name of the device, launch logid with the device connected
 	/// and it should print out a message with the device name. 
-	/// `(e.g. name: "MX Master";)`
 	pub name: Option<String>,
 	/// WARNING! Do not set this in your configuration file
 	/// This just indicates to ruhroh that it is a generic device and
 	/// the settings should apply to everything
 	pub is_generic: Option<bool>,
-	/// This is an 32bit Integer field that defines the SmartShift settings for
+	/// This is an 8bit Integer field that defines the SmartShift settings for
 	/// a mouse that supports it.
 	pub smartshift: Option<u8>,
 	/// This is an object field that defines the HiRes mouse-scrolling settings
@@ -64,8 +71,9 @@ pub struct Device {
 	/// If your mouse has multiple sensors, you may define separate DPIs 
 	/// for those sensors by using an array and placing the value in the 
 	/// sensor's index 
-	/// `(e.g. sensor 0: 1000 dpi, sensor 1: 800 dpi -> dpi: [1000, 800])`
-	pub dpi: Option<u32>
+	pub dpi: Option<u32>,
+	/// This is an optional array field that defines the mappings for buttons.
+	pub buttons: Option<Vec<Button>>,
 }
 
 #[derive(Deserialize)]
@@ -81,4 +89,35 @@ pub struct HiResScroll {
 	/// (true for HID++ notification, false for normal usage). This option must
 	/// be set to true to remap the scroll wheel action.
 	pub target: Option<bool>,
+}
+
+#[derive(Deserialize)]
+pub struct Button {
+	/// This is a required integer field that defines the Control ID of 
+	/// the button that is being remapped. (e.g. cid: 0xc4;)
+	pub cid: Option<String>,
+
+	/// This is a required object field that defines the new action of 
+	/// the button. (e.g. action: { ... }; )
+	pub action: Option<Action>,
+}
+
+#[derive(Deserialize)]
+pub struct Action {
+	/// This is a required string field that defines the type of action. 
+	/// (e.g. type: "None";). The following is a list of possible actions 
+	/// with their additional fields.
+	r#type: Option<ActionType>,
+}
+
+#[derive(Deserialize)]
+pub enum ActionType {
+	Gesture,
+	Keypress,
+	None,
+	ToggleSmartShift,
+	ToggleHiresScroll,
+	CycleDPI,
+	ChangeDPI,
+	ChangeHost,
 }
