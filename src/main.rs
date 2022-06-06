@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::exit, env};
+use std::{path::PathBuf, process::exit, env, str::FromStr};
 use clap::Parser;
 use log::{info, error, Level};
 use crate::config::file::Config;
@@ -25,18 +25,11 @@ async fn main() {
 	let args = CliArgs::parse();
 	let config_path = args.config_path.unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_PATH));
 	let verbosity_level = args.verbosity.unwrap_or_else(|| String::from(DEFAULT_VERB_LVL));
-	let log_level = match verbosity_level.as_str() {
-		"trace" => Level::Trace,
-		"debug" => Level::Debug,
-		"info" => Level::Info,
-		"warn" => Level::Warn,
-		"error" => Level::Error,
-		_ => {
-			println!("Invalid verbosity level");
-			println!("Valid levels are: trace, debug, info, warn, error");
-			exit(1);
-		}
-	};
+	let log_level = Level::from_str(verbosity_level.as_str()).unwrap_or_else(|_| {
+		println!("Invalid verbosity level");
+		println!("Valid levels are: trace, debug, info, warn, error");
+		exit(1);
+	});
 	simple_logger::init_with_level(log_level).unwrap();
 
 	info!("Loading configuration file {:?}", config_path.to_str());
