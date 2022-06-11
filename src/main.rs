@@ -32,6 +32,7 @@ async fn main() {
 			println!("Failed to initialise logger, exiting.");
 			exit(ExitCode::LoggerInitialisationFail.to_i32());
 		});
+		info!("Initialied logger with level {}", log_level.as_str());
 	}
 
 	info!("Loading configuration file {:?}", config_path.to_str());

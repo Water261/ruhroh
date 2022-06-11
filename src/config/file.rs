@@ -1,4 +1,5 @@
 use std::{path::PathBuf, fs::File, io::{BufReader, Error}};
+use log::debug;
 use serde::Deserialize;
 use crate::config::device_types::DeviceTypes;
 
@@ -20,14 +21,17 @@ pub struct Config {
 
 impl Config {
 	pub fn from_path(path: PathBuf) -> Result<Config, Error> {
+		debug!("Opening file from path {:?}", path.as_os_str());
 		let file = File::open(path);
 
 		if let Ok(config_file) = file {
+			debug!("Loading configuration");
 			let reader = BufReader::new(config_file);
 			let config = serde_json::from_reader(reader)?;
 	
 			Ok(config)
 		} else {
+			debug!("The specified path is invalid, falling back to default.");
 			Ok(Config::default())
 		}
 	}
