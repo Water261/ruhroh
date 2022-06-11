@@ -3,8 +3,10 @@ use clap::Parser;
 use log::{info, error};
 use clap_verbosity_flag::{Verbosity, InfoLevel};
 use crate::config::file::Config;
+use crate::exit::ExitCode;
 
 mod config;
+mod exit;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -28,13 +30,13 @@ async fn main() {
 	if let Some(log_level) = verbosity_level {
 		simple_logger::init_with_level(log_level).unwrap_or_else(|_| {
 			println!("Failed to initialise logger, exiting.");
-			exit(1);
+			exit(ExitCode::LoggerInitialisationFail.to_i32());
 		});
 	}
 
 	info!("Loading configuration file {:?}", config_path.to_str());
 	let config = Config::from_path(config_path).unwrap_or_else(|_| {
 		error!("Failed to load config, changing to default.");
-		Config::default()
+		exit(ExitCode::ConfigurationLoadFail.to_i32());
 	});
 }
