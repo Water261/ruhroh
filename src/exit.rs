@@ -2,6 +2,7 @@
 pub enum ExitCode {
 	LoggerInitialisationFail = 1,
 	ConfigurationLoadFail = 2,
+	NoDevices = 3,
 }
 
 impl ExitCode {
