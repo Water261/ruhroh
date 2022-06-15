@@ -3,19 +3,25 @@ use std::io::Error;
 use crate::config::file::Device;
 
 pub struct DeviceManager {
-	device: Device
+    devices: Vec<Device>,
 }
 
 impl DeviceManager {
-	pub fn new(device: Device) -> Self {
-		DeviceManager { device: device }
-	}
+    pub fn new(devices: Option<Vec<Device>>) -> Self {
+        DeviceManager {
+            devices: devices.unwrap_or_default(),
+        }
+    }
 
-	pub fn start() -> Result<(), Error> {
-		todo!()
-	}
+    pub fn add_device(&mut self, device: Device) {
+        self.devices.push(device);
+    }
 
-	pub fn stop() -> Result<(), Error> {
-		todo!()
-	}
+    pub fn start(&self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    pub fn stop(&self) -> Result<(), Error> {
+        Ok(())
+    }
 }

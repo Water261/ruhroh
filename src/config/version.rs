@@ -1,21 +1,21 @@
 use crate::config::file;
 
 pub enum ConfigVersion {
-	V1(file::Config),
+    V1(file::Config),
 }
 
 pub enum DeviceVersion {
-	V1(file::Device),
+    V1(file::Device),
 }
 
 pub enum HiResScrollVersion {
-	V1(file::HiResScroll),
+    V1(file::HiResScroll),
 }
 
 pub enum ButtonVersion {
-	V1(file::Button),
+    V1(file::Button),
 }
 
 pub enum ActionVersion {
-	V1(file::Action)
+    V1(file::Action),
 }
