@@ -13,8 +13,14 @@ jobs:
           toolchain: stable
           components: clippy
         
-      - name: Lint the Project
+      - name: Run Clippy
         run: cargo clippy
 
       - name: Build the Project
         run: cargo build --release
+
+      - name: Upload the built release
+        uses: actions/upload-artifact@v3
+        with:
+          name: ruhroh
+          path: target/release/ruhroh
